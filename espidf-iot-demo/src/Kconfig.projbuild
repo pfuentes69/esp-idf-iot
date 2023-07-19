@@ -1,0 +1,258 @@
+menu "Wifi Configuration"
+
+    config ESP_WIFI_SSID
+        string "WiFi SSID"
+        default "myssid"
+        help
+            SSID (network name) for the example to connect to.
+
+    config ESP_WIFI_PASSWORD
+        string "WiFi Password"
+        default "mypassword"
+        help
+            WiFi password (WPA or WPA2) for the example to use.
+
+    choice ESP_WIFI_SAE_MODE
+        prompt "WPA3 SAE mode selection"
+        default ESP_WPA3_SAE_PWE_BOTH
+        help
+            Select mode for SAE as Hunt and Peck, H2E or both.
+        config ESP_WPA3_SAE_PWE_HUNT_AND_PECK
+            bool "HUNT AND PECK"
+        config ESP_WPA3_SAE_PWE_HASH_TO_ELEMENT
+            bool "H2E"
+        config ESP_WPA3_SAE_PWE_BOTH
+            bool "BOTH"
+    endchoice
+
+    config ESP_WIFI_PW_ID
+        string "PASSWORD IDENTIFIER"
+        depends on  ESP_WPA3_SAE_PWE_HASH_TO_ELEMENT|| ESP_WPA3_SAE_PWE_BOTH
+        default ""
+        help
+            password identifier for SAE H2E
+
+    config ESP_MAXIMUM_RETRY
+        int "Maximum retry"
+        default 5
+        help
+            Set the Maximum retry to avoid station reconnecting to the AP unlimited when the AP is really inexistent.
+
+    choice ESP_WIFI_SCAN_AUTH_MODE_THRESHOLD
+        prompt "WiFi Scan auth mode threshold"
+        default ESP_WIFI_AUTH_WPA2_PSK
+        help
+            The weakest authmode to accept in the scan mode.
+            This value defaults to ESP_WIFI_AUTH_WPA2_PSK incase password is present and ESP_WIFI_AUTH_OPEN is used.
+            Please select ESP_WIFI_AUTH_WEP/ESP_WIFI_AUTH_WPA_PSK incase AP is operating in WEP/WPA mode.
+
+        config ESP_WIFI_AUTH_OPEN
+            bool "OPEN"
+        config ESP_WIFI_AUTH_WEP
+            bool "WEP"
+        config ESP_WIFI_AUTH_WPA_PSK
+            bool "WPA PSK"
+        config ESP_WIFI_AUTH_WPA2_PSK
+            bool "WPA2 PSK"
+        config ESP_WIFI_AUTH_WPA_WPA2_PSK
+            bool "WPA/WPA2 PSK"
+        config ESP_WIFI_AUTH_WPA3_PSK
+            bool "WPA3 PSK"
+        config ESP_WIFI_AUTH_WPA2_WPA3_PSK
+            bool "WPA2/WPA3 PSK"
+        config ESP_WIFI_AUTH_WAPI_PSK
+            bool "WAPI PSK"
+    endchoice
+
+endmenu
+
+menu "HTTP Server Configuration"
+
+    config EXAMPLE_BASIC_AUTH
+        bool "Basic Authentication"
+        default n
+        help
+            Basic Authentication is a method for an HTTP user agent (e.g. a web browser)
+            to provide a user name and password when making a request. It is the simplest
+            technique for enforcing access controls to web resources. because it doesn't
+            require cookies, session identifiers, or login pages; rather, it uses standard
+            fields in the HTTP header.
+            Note that, Basic Authentication is not encrypted channel and also easy to retrieve
+            credentials as they are sent in plain text format.
+
+    config EXAMPLE_BASIC_AUTH_USERNAME
+        string "Basic Authenticate User Name"
+        depends on EXAMPLE_BASIC_AUTH
+        default "ESP32"
+        help
+            The client's user name which used for basic authenticate.
+
+    config EXAMPLE_BASIC_AUTH_PASSWORD
+        string "Basic Authenticate Password"
+        depends on EXAMPLE_BASIC_AUTH
+        default "ESP32Webserver"
+        help
+            The client's password which used for basic authenticate.
+
+endmenu
+
+menu "MQTT Server Configuration"
+
+    config BROKER_URL
+        string "Broker URL"
+        default "mqtt://defaultmqttbroker.local"
+        help
+            URL of the broker to connect to
+
+    config BROKER_URL_FROM_STDIN
+        bool
+        default y if BROKER_URL = "FROM_STDIN"
+
+endmenu
+
+menu "ST7789 Configuration"
+
+	config GPIO_RANGE_MAX
+		int
+		default 33 if IDF_TARGET_ESP32
+		default 46 if IDF_TARGET_ESP32S2
+		default 48 if IDF_TARGET_ESP32S3
+		default 19 if IDF_TARGET_ESP32C3
+
+	config WIDTH
+		int "SCREEN WIDTH"
+		range 0 999
+		default 240
+		help
+			The width resolution of the screen.
+
+	config HEIGHT
+		int "SCREEN HEIGHT"
+		range 0 999
+		default 240
+		help
+			The height resolution of the screen.
+
+	config OFFSETX
+		int "GRAM X OFFSET"
+		range 0 99
+		default 0
+		help
+			When your TFT have offset(X), set it.
+
+	config OFFSETY
+		int "GRAM Y OFFSET"
+		range 0 99
+		default 0
+		help
+			When your TFT have offset(Y), set it.
+
+	config MOSI_GPIO
+		int "MOSI GPIO number"
+		range 0 GPIO_RANGE_MAX
+		default 23 if IDF_TARGET_ESP32
+		default 35 if IDF_TARGET_ESP32S2
+		default 35 if IDF_TARGET_ESP32S3
+		default 0
+		help
+			GPIO number (IOxx) to SPI MOSI.
+			Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to MOSI.
+			On the ESP32, GPIOs 35-39 are input-only so cannot be used as outputs.
+			On the ESP32-S2, GPIO 46 is input-only so cannot be used as outputs.
+
+	config SCLK_GPIO
+		int "SCLK GPIO number"
+		range 0 GPIO_RANGE_MAX
+		default 18 if IDF_TARGET_ESP32
+		default 36 if IDF_TARGET_ESP32S2
+		default 36 if IDF_TARGET_ESP32S3
+		default 1
+		help
+			GPIO number (IOxx) to SPI SCLK.
+			Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to SCLK.
+			On the ESP32, GPIOs 35-39 are input-only so cannot be used as outputs.
+			On the ESP32-S2, GPIO 46 is input-only so cannot be used as outputs.
+
+	config CS_GPIO
+		int "CS GPIO number"
+		range -1 GPIO_RANGE_MAX
+		default -1
+		help
+			GPIO number (IOxx) to SPI CS.
+			When it is -1, CS isn't performed.
+			Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to CS.
+			On the ESP32, GPIOs 35-39 are input-only so cannot be used as outputs.
+			On the ESP32-S2, GPIO 46 is input-only so cannot be used as outputs.
+
+	config DC_GPIO
+		int "DC GPIO number"
+		range 0 GPIO_RANGE_MAX
+		default 2 if IDF_TARGET_ESP32
+		default 37 if IDF_TARGET_ESP32S2
+		default 40 if IDF_TARGET_ESP32S3
+		default 2
+		help
+			GPIO number (IOxx) to SPI DC.
+			Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to DC.
+			On the ESP32, GPIOs 35-39 are input-only so cannot be used as outputs.
+			On the ESP32-S2, GPIO 46 is input-only so cannot be used as outputs.
+
+	config RESET_GPIO
+		int "RESET GPIO number"
+		range 0 GPIO_RANGE_MAX
+		default 4 if IDF_TARGET_ESP32
+		default 38 if IDF_TARGET_ESP32S2
+		default 41 if IDF_TARGET_ESP32S3
+		default 4
+		help
+			GPIO number (IOxx) to RESET.
+			Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to RESET.
+			On the ESP32, GPIOs 35-39 are input-only so cannot be used as outputs.
+			On the ESP32-S2, GPIO 46 is input-only so cannot be used as outputs.
+
+	config BL_GPIO
+		int "BACKLIGHT GPIO number"
+		range -1 GPIO_RANGE_MAX
+		default -1 if IDF_TARGET_ESP32
+		default 33 if IDF_TARGET_ESP32S2
+		default 33 if IDF_TARGET_ESP32S3
+		default -1
+		help
+			GPIO number (IOxx) to BACKLIGHT.
+			When it is -1, BACKLIGHT isn't performed.
+			Some GPIOs are used for other purposes (flash connections, etc.) and cannot be used to BACKLIGHT.
+			On the ESP32, GPIOs 35-39 are input-only so cannot be used as outputs.
+			On the ESP32-S2, GPIO 46 is input-only so cannot be used as outputs.
+
+	config INVERSION
+		bool "Enable Display Inversion"
+		default false
+		help
+			Enable Display Inversion.
+
+	choice SPI_HOST
+		prompt "SPI peripheral that controls this bus"
+		default SPI2_HOST
+		help
+			Select SPI peripheral that controls this bus.
+		config SPI2_HOST
+			bool "SPI2_HOST"
+			help
+				Use SPI2_HOST. This is also called HSPI_HOST.
+		config SPI3_HOST
+			depends on IDF_TARGET_ESP32 || IDF_TARGET_ESP32S2 || IDF_TARGET_ESP32S3
+			bool "SPI3_HOST"
+			help
+				USE SPI3_HOST. This is also called VSPI_HOST
+	endchoice
+
+endmenu
+
+menu "SPIFFS Configuration"
+    config EXAMPLE_SPIFFS_CHECK_ON_START
+        bool "Run SPIFFS_check on every start-up"
+        default y
+        help
+            If this config item is set, esp_spiffs_check() will be run on every start-up.
+            Slow on large flash sizes.
+endmenu
